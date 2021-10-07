@@ -1,3 +1,9 @@
+## 0.1.2 (2021-10-07)
+
+### Fix
+
+- support earlier python versions
+
 ## 0.1.1 (2021-10-07)
 
 ### Refactor
