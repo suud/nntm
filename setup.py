@@ -20,6 +20,8 @@ setup(
     packages=find_packages(where=".", exclude=["tests"]),
     install_requires=[
         "numerapi>=2.9.0",
+        "pandas>=1.3.3",
+        "pyarrow>=5.0.0",
         "scikit-learn>=1.0",
         "setuptools>=45.0",
     ],
