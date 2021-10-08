@@ -26,18 +26,18 @@ Test data:
 - 1050 features
 - no target values provided
 
+Validation data:
+----------------
+- 539658 samples over 105 eras (857-961)
+- 1050 features
+- 20 different targets
+
 Live data:
 ----------
 - changes weekly
 - number of samples may vary, one era
 - 1050 features
 - no target values provided
-
-Validation data:
-----------------
-- 539658 samples over 105 eras (857-961)
-- 1050 features
-- 20 different targets
 
 Tournament data:
 ----------------
