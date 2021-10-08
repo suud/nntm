@@ -1,3 +1,9 @@
+## 0.2.0 (2021-10-08)
+
+### Feat
+
+- add fetcher for validation data
+
 ## 0.1.2 (2021-10-07)
 
 ### Fix
