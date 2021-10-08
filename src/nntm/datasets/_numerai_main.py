@@ -195,10 +195,12 @@ def fetch_numerai_training(
     feature_names = _get_feature_names(df)
     target_names = _get_target_names(df)
 
-    # replace NaNs
-    na_value = _get_na_value(na_value=na_value, is_int8=int8)
-    dtype = _get_dtype(is_int8=int8)
-    df[feature_names] = df[feature_names].fillna(na_value)
+    if df[feature_names].isnull().values.any():
+        # replace NaNs
+        na_value = _get_na_value(na_value=na_value, is_int8=int8)
+        logger.info(f"Replacing NaN feature values with '{na_value}'")
+        dtype = _get_dtype(is_int8=int8)
+        df[feature_names] = df[feature_names].fillna(na_value)
 
     # ensure expected data type for features
     df[feature_names] = df[feature_names].astype(dtype)
@@ -366,10 +368,12 @@ def fetch_numerai_validation(
     feature_names = _get_feature_names(df)
     target_names = _get_target_names(df)
 
-    # replace NaNs
-    na_value = _get_na_value(na_value=na_value, is_int8=int8)
-    dtype = _get_dtype(is_int8=int8)
-    df[feature_names] = df[feature_names].fillna(na_value)
+    if df[feature_names].isnull().values.any():
+        # replace NaNs
+        na_value = _get_na_value(na_value=na_value, is_int8=int8)
+        logger.info(f"Replacing NaN feature values with '{na_value}'")
+        dtype = _get_dtype(is_int8=int8)
+        df[feature_names] = df[feature_names].fillna(na_value)
 
     # ensure expected data type for features
     df[feature_names] = df[feature_names].astype(dtype)
