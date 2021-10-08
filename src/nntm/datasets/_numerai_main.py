@@ -111,7 +111,7 @@ def fetch_numerai_training(
         instead of `float32`. Target columns are always `float32`.
 
     na_value : Any, default=None
-        The value to use for missing values (NaNs) in the dataset.
+        The value to use for missing feature values (NaNs) in the dataset.
         By default, `2` will be used when `int8=True` or `0.5`
         when `int8=False`.
 
