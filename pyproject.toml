@@ -9,5 +9,5 @@ build-backend = "setuptools.build_meta"
 name = "cz_conventional_commits"
 version = "0.1.2"
 version_files = [
-    "nntm/__init__.py"
+    "src/nntm/__init__.py"
 ]
