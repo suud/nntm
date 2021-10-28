@@ -1,3 +1,13 @@
+## 0.3.0 (2021-10-28)
+
+### Feat
+
+- add PurgedKFold cross-validator
+
+### Perf
+
+- fill NaNs only when necessary
+
 ## 0.2.0 (2021-10-08)
 
 ### Feat
