@@ -1,3 +1,24 @@
+## 1.0.0 (2021-10-29)
+
+### Feat
+
+- add fetcher for validation predictions
+- add fetcher for example predictions
+- add fetcher for live data
+- add fetcher for test data
+- add fetcher for tournament data
+- add targets attribute
+- remove na_value argument
+- use original data types
+- return metadata as separate attributes
+
+### BREAKING CHANGE
+
+- remove support for NaN value replacement in fetchers.
+- don't convert `era`s to int.
+- replace the dataset's `info` attribute by `id`, `era`
+and `data_type` attributes.
+
 ## 0.3.0 (2021-10-28)
 
 ### Feat
