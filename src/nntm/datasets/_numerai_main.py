@@ -282,29 +282,29 @@ def fetch_numerai_validation(
     dataset : :class:`~sklearn.utils.Bunch`
         Dictionary-like object, with the following attributes.
 
-        data : {ndarray, DataFrame} of shape (2412105, 1050)
+        data : {ndarray, DataFrame} of shape (539658, 1050)
             Each row corresponding to the `feature_names` in order.
             When `as_frame=True`, `data` is a pandas DataFrame.
 
-        target : {ndarray, Series} of shape (2412105,)
+        target : {ndarray, Series} of shape (539658,)
             When `as_frame=True`, `target` is a pandas Series.
 
-        targets : {ndarray, DataFrame} of shape (2412105, 21)
+        targets : {ndarray, DataFrame} of shape (539658, 21)
             When `as_frame=True`, `targets` is a pandas DataFrame.
 
-        target_<name> : {ndarray, Series} of shape (2412105,)
+        target_<name> : {ndarray, Series} of shape (539658,)
             See `target_names` for available targets.
             When `as_frame=True`, `target_<name>` is a pandas Series.
 
-        id : {ndarray, Series} of shape (2412105,)
+        id : {ndarray, Series} of shape (539658,)
             `id` of each row in `data`.
             When `as_frame=True`, `id` is a pandas Series.
 
-        era : {ndarray, Series} of shape (2412105,)
+        era : {ndarray, Series} of shape (539658,)
             `era` of each row in `data`.
             When `as_frame=True`, `era` is a pandas Series.
 
-        data_type : {ndarray, Series} of shape (2412105,)
+        data_type : {ndarray, Series} of shape (539658,)
             `data_type` of each row in `data`.
             When `as_frame=True`, `data_type` is a pandas Series.
 
