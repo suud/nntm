@@ -67,16 +67,95 @@ from sklearn.utils import Bunch
 logger = logging.getLogger(__name__)
 
 
-def fetch_numerai_training(
-    *,
-    data_home=None,
-    download_if_missing=True,
-    return_X_y=False,
-    target="target",
-    as_frame=False,
-    columns=None,
-    int8=True,
-):
+def _get_numerai_fetcher(filename_float32, filename_int8, dataset):
+    """Return fetch function for passed files"""
+
+    def fetch_numerai(
+        *,
+        data_home=None,
+        download_if_missing=True,
+        return_X_y=False,
+        target="target",
+        as_frame=False,
+        columns=None,
+        int8=True,
+    ):
+        # Make sure required columns will be read
+        if columns:
+            columns = list(set(columns + ["era", "data_type"]))
+
+        # Get file locations
+        data_home = get_data_home(data_home=data_home)
+        if not exists(data_home):
+            makedirs(data_home)
+        filename = filename_float32
+        if int8:
+            filename = filename_int8
+        filepath = "/".join([data_home, filename])
+
+        # Download and read dataset
+        if not exists(filepath):
+            if not download_if_missing:
+                raise IOError("Data not found and `download_if_missing` is False")
+
+            logger.info(f"Downloading Numerai {dataset} data to {filepath}")
+            napi = NumerAPI()
+            napi.download_dataset(filename, dest_path=filepath)
+
+            df = pd.read_parquet(filepath, columns=columns)
+            remove(filepath)
+        else:
+            df = pd.read_parquet(filepath, columns=columns)
+
+        # Get feature and target columns
+        feature_names = _get_feature_names(df)
+        target_names = _get_target_names(df)
+
+        # Enforce expected data type for features
+        dtype = _get_dtype(is_int8=int8)
+        df[feature_names] = df[feature_names].astype(dtype)
+
+        X = df[feature_names]
+        # One entry per target
+        target_dict = {tn: df[tn] for tn in target_names}
+        # All targets in one DataFrame
+        targets = df[target_names]
+
+        id_ = df.index
+        era = df.era
+        data_type = df.data_type
+
+        if not as_frame:
+            # Convert to numpy
+            X = X.to_numpy(dtype=dtype)
+            target_dict = {k: v.to_numpy() for k, v in target_dict.items()}
+            targets = targets.to_numpy()
+            id_ = id_.to_numpy()
+            era = era.to_numpy()
+            data_type = data_type.to_numpy()
+            df = None
+
+        if return_X_y:
+            return X, target_dict[target]
+
+        return Bunch(
+            data=X,
+            **target_dict,
+            targets=targets,
+            id=id_,
+            era=era,
+            data_type=data_type,
+            feature_names=feature_names,
+            target_names=target_names,
+            int8=int8,
+            DESCR=f"Numerai main tournament: {dataset} data",
+            frame=df,
+        )
+
+    return fetch_numerai
+
+
+def fetch_numerai_training(*args, **kwargs):
     """Load the Numerai training dataset.
 
     Parameters
@@ -161,89 +240,15 @@ def fetch_numerai_training(
             Only present when `return_X_y=True`
             `target` corresponds to the column set by the `target` attribute.
     """
-    # Make sure required columns will be read
-    if columns:
-        columns = list(set(columns + ["era", "data_type"]))
-
-    # Get file locations
-    data_home = get_data_home(data_home=data_home)
-    if not exists(data_home):
-        makedirs(data_home)
-    filename = "numerai_training_data.parquet"
-    if int8:
-        filename = "numerai_training_data_int8.parquet"
-    filepath = "/".join([data_home, filename])
-
-    # Download and read dataset
-    if not exists(filepath):
-        if not download_if_missing:
-            raise IOError("Data not found and `download_if_missing` is False")
-
-        logger.info(f"Downloading Numerai training data to {filepath}")
-        napi = NumerAPI()
-        napi.download_dataset(filename, dest_path=filepath)
-
-        df = pd.read_parquet(filepath, columns=columns)
-        remove(filepath)
-    else:
-        df = pd.read_parquet(filepath, columns=columns)
-
-    # Get feature and target columns
-    feature_names = _get_feature_names(df)
-    target_names = _get_target_names(df)
-
-    # Enforce expected data type for features
-    dtype = _get_dtype(is_int8=int8)
-    df[feature_names] = df[feature_names].astype(dtype)
-
-    X = df[feature_names]
-    # One entry per target
-    target_dict = {tn: df[tn] for tn in target_names}
-    # All targets in one DataFrame
-    targets = df[target_names]
-
-    id_ = df.index
-    era = df.era
-    data_type = df.data_type
-
-    if not as_frame:
-        # Convert to numpy
-        X = X.to_numpy(dtype=dtype)
-        target_dict = {k: v.to_numpy() for k, v in target_dict.items()}
-        targets = targets.to_numpy()
-        id_ = id_.to_numpy()
-        era = era.to_numpy()
-        data_type = data_type.to_numpy()
-        df = None
-
-    if return_X_y:
-        return X, target_dict[target]
-
-    return Bunch(
-        data=X,
-        **target_dict,
-        targets=targets,
-        id=id_,
-        era=era,
-        data_type=data_type,
-        feature_names=feature_names,
-        target_names=target_names,
-        int8=int8,
-        DESCR="Numerai main tournament: training data",
-        frame=df,
+    fetcher = _get_numerai_fetcher(
+        "numerai_training_data.parquet",
+        "numerai_training_data_int8.parquet",
+        "training",
     )
+    return fetcher(*args, **kwargs)
 
 
-def fetch_numerai_validation(
-    *,
-    data_home=None,
-    download_if_missing=True,
-    return_X_y=False,
-    target="target",
-    as_frame=False,
-    columns=None,
-    int8=True,
-):
+def fetch_numerai_validation(*args, **kwargs):
     """Load the Numerai validation dataset.
 
     Parameters
@@ -328,77 +333,109 @@ def fetch_numerai_validation(
             Only present when `return_X_y=True`
             `target` corresponds to the column set by the `target` attribute.
     """
-    # Make sure required columns will be read
-    if columns:
-        columns = list(set(columns + ["era", "data_type"]))
-
-    # Get file locations
-    data_home = get_data_home(data_home=data_home)
-    if not exists(data_home):
-        makedirs(data_home)
-    filename = "numerai_validation_data.parquet"
-    if int8:
-        filename = "numerai_validation_data_int8.parquet"
-    filepath = "/".join([data_home, filename])
-
-    # Download and read dataset
-    if not exists(filepath):
-        if not download_if_missing:
-            raise IOError("Data not found and `download_if_missing` is False")
-
-        logger.info(f"Downloading Numerai validation data to {filepath}")
-        napi = NumerAPI()
-        napi.download_dataset(filename, dest_path=filepath)
-
-        df = pd.read_parquet(filepath, columns=columns)
-        remove(filepath)
-    else:
-        df = pd.read_parquet(filepath, columns=columns)
-
-    # Get feature and target columns
-    feature_names = _get_feature_names(df)
-    target_names = _get_target_names(df)
-
-    # Enforce expected data type for features
-    dtype = _get_dtype(is_int8=int8)
-    df[feature_names] = df[feature_names].astype(dtype)
-
-    X = df[feature_names]
-    # One entry per target
-    target_dict = {tn: df[tn] for tn in target_names}
-    # All targets in one DataFrame
-    targets = df[target_names]
-
-    id_ = df.index
-    era = df.era
-    data_type = df.data_type
-
-    if not as_frame:
-        # Convert to numpy
-        X = X.to_numpy(dtype=dtype)
-        target_dict = {k: v.to_numpy() for k, v in target_dict.items()}
-        targets = targets.to_numpy()
-        id_ = id_.to_numpy()
-        era = era.to_numpy()
-        data_type = data_type.to_numpy()
-        df = None
-
-    if return_X_y:
-        return X, target_dict[target]
-
-    return Bunch(
-        data=X,
-        **target_dict,
-        targets=targets,
-        id=id_,
-        era=era,
-        data_type=data_type,
-        feature_names=feature_names,
-        target_names=target_names,
-        int8=int8,
-        DESCR="Numerai main tournament: validation data",
-        frame=df,
+    fetcher = _get_numerai_fetcher(
+        "numerai_validation_data.parquet",
+        "numerai_validation_data_int8.parquet",
+        "validation",
     )
+    return fetcher(*args, **kwargs)
+
+
+def fetch_numerai_tournament(*args, **kwargs):
+    """Load the Numerai tournament dataset.
+
+    Parameters
+    ----------
+    data_home : str, default=None
+        Specify another download and cache folder for the datasets. By default
+        all data is stored in `~/scikit_learn_data` subfolders.
+
+    download_if_missing : bool, default=True
+        If False, raise an IOError if the data is not locally available
+        instead of trying to download the data from the source bucket.
+
+    return_X_y : bool, default=False.
+        If True, returns `(data.data, data.target)` instead of a Bunch
+        object. A custom target column can be selected through the
+        `target` parameter.
+
+    target : str, default="target"
+        Target column to return as `y` when `return_X_y=True`.
+
+    as_frame : bool, default=False
+        If True, `data` and `targets` are pandas DataFrames. `target`,
+        `target_<name>`, `id`, `era` and `data_type` are pandas Series.
+        `frame` will be given.
+
+    columns : list, default=None
+        If not None, only these columns will be read from the file.
+        `index`, `era` and `data_type` columns are always read.
+
+    int8 : bool, default=True
+        If True, the feature columns will use the `int8` data type
+        instead of `float32`. Target columns are always `float32`.
+
+    Returns
+    -------
+    dataset : :class:`~sklearn.utils.Bunch`
+        Dictionary-like object, with the following attributes.
+
+        data : {ndarray, DataFrame} of shape (n_samples, 1050)
+            Each row corresponding to the `feature_names` in order.
+            When `as_frame=True`, `data` is a pandas DataFrame.
+
+        target : {ndarray, Series} of shape (n_samples,)
+            When `as_frame=True`, `target` is a pandas Series.
+
+        targets : {ndarray, DataFrame} of shape (n_samples, 21)
+            When `as_frame=True`, `targets` is a pandas DataFrame.
+
+        target_<name> : {ndarray, Series} of shape (n_samples,)
+            See `target_names` for available targets.
+            When `as_frame=True`, `target_<name>` is a pandas Series.
+
+        id : {ndarray, Series} of shape (n_samples,)
+            `id` of each row in `data`.
+            When `as_frame=True`, `id` is a pandas Series.
+
+        era : {ndarray, Series} of shape (n_samples,)
+            `era` of each row in `data`.
+            When `as_frame=True`, `era` is a pandas Series.
+
+        data_type : {ndarray, Series} of shape (n_samples,)
+            `data_type` of each row in `data`.
+            When `as_frame=True`, `data_type` is a pandas Series.
+
+        feature_names : list of length 1050
+            List of ordered feature names used in the dataset.
+
+        target_names : list of length 21
+            List of ordered target names used in the dataset.
+
+        int8 : bool
+            True when features use `int8` data type.
+
+        DESCR : string
+            Description of the dataset.
+
+        frame : DataFrame if `as_frame=True`
+            Only present when `as_frame=True`. Pandas DataFrame with
+            `era`, `data_type`, features and targets.
+
+        (data, target) : tuple if `return_X_y=True`
+            Only present when `return_X_y=True`
+            `target` corresponds to the column set by the `target` attribute.
+
+    Notes
+    -----
+    Data changes weekly.
+    """
+    fetcher = _get_numerai_fetcher(
+        "numerai_tournament_data.parquet",
+        "numerai_tournament_data_int8.parquet",
+        "tournament",
+    )
+    return fetcher(*args, **kwargs)
 
 
 def _get_feature_names(df: pd.DataFrame) -> List[str]:
