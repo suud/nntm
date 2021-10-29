@@ -159,8 +159,6 @@ def fetch_numerai_training(
         frame : DataFrame if `as_frame=True`
             Only present when `as_frame=True`. Pandas DataFrame with
             `era`, `data_type`, features and targets.
-            `era` uses the `int` data type (as opposed to the original dataset
-            where `era`s are strings).
 
         (data, target) : tuple if `return_X_y=True`
             Only present when `return_X_y=True`
@@ -211,9 +209,6 @@ def fetch_numerai_training(
 
     # Ensure expected data type for features
     df[feature_names] = df[feature_names].astype(dtype)
-
-    # Convert era's to int
-    df["era"] = df["era"].astype(int)
 
     X = df[feature_names]
     target_dict = {tn: df[tn] for tn in target_names}
@@ -339,8 +334,6 @@ def fetch_numerai_validation(
         frame : DataFrame if `as_frame=True`
             Only present when `as_frame=True`. Pandas DataFrame with
             `era`, `data_type`, features and targets.
-            `era` uses the `int` data type (as opposed to the original dataset
-            where `era`s are strings).
 
         (data, target) : tuple if `return_X_y=True`
             Only present when `return_X_y=True`
@@ -391,9 +384,6 @@ def fetch_numerai_validation(
 
     # Ensure expected data type for features
     df[feature_names] = df[feature_names].astype(dtype)
-
-    # Convert era's to int
-    df["era"] = df["era"].astype(int)
 
     X = df[feature_names]
     target_dict = {tn: df[tn] for tn in target_names}
