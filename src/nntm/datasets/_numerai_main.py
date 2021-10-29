@@ -434,6 +434,103 @@ def fetch_numerai_validation(*args, **kwargs):
     return fetcher(*args, **kwargs)
 
 
+def fetch_numerai_live(*args, **kwargs):
+    """Load the Numerai live dataset.
+
+    Parameters
+    ----------
+    data_home : str, default=None
+        Specify another download and cache folder for the datasets. By default
+        all data is stored in `~/scikit_learn_data` subfolders.
+
+    download_if_missing : bool, default=True
+        If False, raise an IOError if the data is not locally available
+        instead of trying to download the data from the source bucket.
+
+    return_X_y : bool, default=False.
+        If True, returns `(data.data, data.target)` instead of a Bunch
+        object. A custom target column can be selected through the
+        `target` parameter.
+
+    target : str, default="target"
+        Target column to return as `y` when `return_X_y=True`.
+
+    as_frame : bool, default=False
+        If True, `data` and `targets` are pandas DataFrames. `target`,
+        `target_<name>`, `id`, `era` and `data_type` are pandas Series.
+        `frame` will be given.
+
+    columns : list, default=None
+        If not None, only these columns will be read from the file.
+        `index`, `era` and `data_type` columns are always read.
+
+    int8 : bool, default=True
+        If True, the feature columns will use the `int8` data type
+        instead of `float32`. Target columns are always `float32`.
+
+    Returns
+    -------
+    dataset : :class:`~sklearn.utils.Bunch`
+        Dictionary-like object, with the following attributes.
+
+        data : {ndarray, DataFrame} of shape (n_samples, 1050)
+            Each row corresponding to the `feature_names` in order.
+            When `as_frame=True`, `data` is a pandas DataFrame.
+
+        target : {ndarray, Series} of shape (n_samples,)
+            When `as_frame=True`, `target` is a pandas Series.
+
+        targets : {ndarray, DataFrame} of shape (n_samples, 21)
+            When `as_frame=True`, `targets` is a pandas DataFrame.
+
+        target_<name> : {ndarray, Series} of shape (n_samples,)
+            See `target_names` for available targets.
+            When `as_frame=True`, `target_<name>` is a pandas Series.
+
+        id : {ndarray, Series} of shape (n_samples,)
+            `id` of each row in `data`.
+            When `as_frame=True`, `id` is a pandas Series.
+
+        era : {ndarray, Series} of shape (n_samples,)
+            `era` of each row in `data`.
+            When `as_frame=True`, `era` is a pandas Series.
+
+        data_type : {ndarray, Series} of shape (n_samples,)
+            `data_type` of each row in `data`.
+            When `as_frame=True`, `data_type` is a pandas Series.
+
+        feature_names : list of length 1050
+            List of ordered feature names used in the dataset.
+
+        target_names : list of length 21
+            List of ordered target names used in the dataset.
+
+        int8 : bool
+            True when features use `int8` data type.
+
+        DESCR : string
+            Description of the dataset.
+
+        frame : DataFrame if `as_frame=True`
+            Only present when `as_frame=True`. Pandas DataFrame with
+            `era`, `data_type`, features and targets.
+
+        (data, target) : tuple if `return_X_y=True`
+            Only present when `return_X_y=True`
+            `target` corresponds to the column set by the `target` attribute.
+
+    Notes
+    -----
+    Data changes weekly.
+    """
+    fetcher = _get_numerai_fetcher(
+        "numerai_live_data.parquet",
+        "numerai_live_data_int8.parquet",
+        "live",
+    )
+    return fetcher(*args, **kwargs)
+
+
 def fetch_numerai_tournament(*args, **kwargs):
     """Load the Numerai tournament dataset.
 
