@@ -76,7 +76,6 @@ def fetch_numerai_training(
     as_frame=False,
     columns=None,
     int8=True,
-    na_value=None,
 ):
     """Load the Numerai training dataset.
 
@@ -110,11 +109,6 @@ def fetch_numerai_training(
     int8 : bool, default=True
         If True, the feature columns will use the `int8` data type
         instead of `float32`. Target columns are always `float32`.
-
-    na_value : Any, default=None
-        The value to use for missing feature values (NaNs) in the dataset.
-        By default, `2` will be used when `int8=True` or `0.5`
-        when `int8=False`.
 
     Returns
     -------
@@ -200,14 +194,8 @@ def fetch_numerai_training(
     feature_names = _get_feature_names(df)
     target_names = _get_target_names(df)
 
-    if df[feature_names].isnull().values.any():
-        # Replace NaNs
-        na_value = _get_na_value(na_value=na_value, is_int8=int8)
-        logger.info(f"Replacing NaN feature values with '{na_value}'")
-        dtype = _get_dtype(is_int8=int8)
-        df[feature_names] = df[feature_names].fillna(na_value)
-
-    # Ensure expected data type for features
+    # Enforce expected data type for features
+    dtype = _get_dtype(is_int8=int8)
     df[feature_names] = df[feature_names].astype(dtype)
 
     X = df[feature_names]
@@ -251,7 +239,6 @@ def fetch_numerai_validation(
     as_frame=False,
     columns=None,
     int8=True,
-    na_value=None,
 ):
     """Load the Numerai validation dataset.
 
@@ -285,11 +272,6 @@ def fetch_numerai_validation(
     int8 : bool, default=True
         If True, the feature columns will use the `int8` data type
         instead of `float32`. Target columns are always `float32`.
-
-    na_value : Any, default=None
-        The value to use for missing feature values (NaNs) in the dataset.
-        By default, `2` will be used when `int8=True` or `0.5`
-        when `int8=False`.
 
     Returns
     -------
@@ -375,14 +357,8 @@ def fetch_numerai_validation(
     feature_names = _get_feature_names(df)
     target_names = _get_target_names(df)
 
-    if df[feature_names].isnull().values.any():
-        # Replace NaNs
-        na_value = _get_na_value(na_value=na_value, is_int8=int8)
-        logger.info(f"Replacing NaN feature values with '{na_value}'")
-        dtype = _get_dtype(is_int8=int8)
-        df[feature_names] = df[feature_names].fillna(na_value)
-
-    # Ensure expected data type for features
+    # Enforce expected data type for features
+    dtype = _get_dtype(is_int8=int8)
     df[feature_names] = df[feature_names].astype(dtype)
 
     X = df[feature_names]
@@ -433,14 +409,3 @@ def _get_dtype(is_int8: bool) -> str:
         return "int8"
     else:
         return "float32"
-
-
-def _get_na_value(na_value, is_int8: bool):
-    """Get na_value or acceptable default."""
-    if na_value is not None:
-        return na_value
-
-    if is_int8:
-        return 2
-    else:
-        return 0.5
