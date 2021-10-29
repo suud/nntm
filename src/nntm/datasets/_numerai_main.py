@@ -98,7 +98,7 @@ def fetch_numerai_training(
         Target column to return as `y` when `return_X_y=True`.
 
     as_frame : bool, default=False
-        If True, `data` is a pandas DataFrame. `target`,
+        If True, `data` and `targets` are pandas DataFrames. `target`,
         `target_<name>`, `id`, `era` and `data_type` are pandas Series.
         `frame` will be given.
 
@@ -121,6 +121,9 @@ def fetch_numerai_training(
 
         target : {ndarray, Series} of shape (2412105,)
             When `as_frame=True`, `target` is a pandas Series.
+
+        targets : {ndarray, DataFrame} of shape (2412105, 21)
+            When `as_frame=True`, `targets` is a pandas DataFrame.
 
         target_<name> : {ndarray, Series} of shape (2412105,)
             See `target_names` for available targets.
@@ -157,11 +160,6 @@ def fetch_numerai_training(
         (data, target) : tuple if `return_X_y=True`
             Only present when `return_X_y=True`
             `target` corresponds to the column set by the `target` attribute.
-
-    Notes
-    -----
-    `target` corresponds to `target_nomi_20`.
-
     """
     # Make sure required columns will be read
     if columns:
@@ -199,7 +197,11 @@ def fetch_numerai_training(
     df[feature_names] = df[feature_names].astype(dtype)
 
     X = df[feature_names]
+    # One entry per target
     target_dict = {tn: df[tn] for tn in target_names}
+    # All targets in one DataFrame
+    targets = df[target_names]
+
     id_ = df.index
     era = df.era
     data_type = df.data_type
@@ -208,6 +210,7 @@ def fetch_numerai_training(
         # Convert to numpy
         X = X.to_numpy(dtype=dtype)
         target_dict = {k: v.to_numpy() for k, v in target_dict.items()}
+        targets = targets.to_numpy()
         id_ = id_.to_numpy()
         era = era.to_numpy()
         data_type = data_type.to_numpy()
@@ -219,6 +222,7 @@ def fetch_numerai_training(
     return Bunch(
         data=X,
         **target_dict,
+        targets=targets,
         id=id_,
         era=era,
         data_type=data_type,
@@ -261,7 +265,7 @@ def fetch_numerai_validation(
         Target column to return as `y` when `return_X_y=True`.
 
     as_frame : bool, default=False
-        If True, `data` is a pandas DataFrame. `target`,
+        If True, `data` and `targets` are pandas DataFrames. `target`,
         `target_<name>`, `id`, `era` and `data_type` are pandas Series.
         `frame` will be given.
 
@@ -284,6 +288,9 @@ def fetch_numerai_validation(
 
         target : {ndarray, Series} of shape (2412105,)
             When `as_frame=True`, `target` is a pandas Series.
+
+        targets : {ndarray, DataFrame} of shape (2412105, 21)
+            When `as_frame=True`, `targets` is a pandas DataFrame.
 
         target_<name> : {ndarray, Series} of shape (2412105,)
             See `target_names` for available targets.
@@ -320,11 +327,6 @@ def fetch_numerai_validation(
         (data, target) : tuple if `return_X_y=True`
             Only present when `return_X_y=True`
             `target` corresponds to the column set by the `target` attribute.
-
-    Notes
-    -----
-    `target` corresponds to `target_nomi_20`.
-
     """
     # Make sure required columns will be read
     if columns:
@@ -362,7 +364,11 @@ def fetch_numerai_validation(
     df[feature_names] = df[feature_names].astype(dtype)
 
     X = df[feature_names]
+    # One entry per target
     target_dict = {tn: df[tn] for tn in target_names}
+    # All targets in one DataFrame
+    targets = df[target_names]
+
     id_ = df.index
     era = df.era
     data_type = df.data_type
@@ -371,6 +377,7 @@ def fetch_numerai_validation(
         # Convert to numpy
         X = X.to_numpy(dtype=dtype)
         target_dict = {k: v.to_numpy() for k, v in target_dict.items()}
+        targets = targets.to_numpy()
         id_ = id_.to_numpy()
         era = era.to_numpy()
         data_type = data_type.to_numpy()
@@ -382,6 +389,7 @@ def fetch_numerai_validation(
     return Bunch(
         data=X,
         **target_dict,
+        targets=targets,
         id=id_,
         era=era,
         data_type=data_type,
