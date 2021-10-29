@@ -1,7 +1,7 @@
 """Numerai main tournament dataset.
 
-The Numerai main tournament dataset is made of high quality financial data
-that has been cleaned, regularized and obfuscated.
+The Numerai main tournament dataset is made of high quality financial
+data that has been cleaned, regularized and obfuscated.
 
 The original dataset is available from
 
@@ -67,7 +67,7 @@ from sklearn.utils import Bunch
 logger = logging.getLogger(__name__)
 
 
-def _get_numerai_fetcher(filename_float32, filename_int8, dataset):
+def _get_numerai_fetcher(filename_float32, filename_int8, name):
     """Return fetch function for passed files"""
 
     def fetch_numerai(
@@ -98,7 +98,7 @@ def _get_numerai_fetcher(filename_float32, filename_int8, dataset):
             if not download_if_missing:
                 raise IOError("Data not found and `download_if_missing` is False")
 
-            logger.info(f"Downloading Numerai {dataset} data to {filepath}")
+            logger.info(f"Downloading Numerai {name} data to {filepath}")
             napi = NumerAPI()
             napi.download_dataset(filename, dest_path=filepath)
 
@@ -148,7 +148,7 @@ def _get_numerai_fetcher(filename_float32, filename_int8, dataset):
             feature_names=feature_names,
             target_names=target_names,
             int8=int8,
-            DESCR=f"Numerai main tournament: {dataset} data",
+            DESCR=f"Numerai main tournament: {name} data",
             frame=df,
         )
 
@@ -347,8 +347,8 @@ def fetch_numerai_validation(*args, **kwargs):
     Parameters
     ----------
     data_home : str, default=None
-        Specify another download and cache folder for the datasets. By default
-        all data is stored in `~/scikit_learn_data` subfolders.
+        Specify another download and cache folder for the datasets. By
+        default all data is stored in `~/scikit_learn_data` subfolders.
 
     download_if_missing : bool, default=True
         If False, raise an IOError if the data is not locally available
@@ -424,7 +424,8 @@ def fetch_numerai_validation(*args, **kwargs):
 
         (data, target) : tuple if `return_X_y=True`
             Only present when `return_X_y=True`
-            `target` corresponds to the column set by the `target` attribute.
+            `target` corresponds to the column set by the `target`
+            attribute.
     """
     fetcher = _get_numerai_fetcher(
         "numerai_validation_data.parquet",
@@ -440,8 +441,8 @@ def fetch_numerai_live(*args, **kwargs):
     Parameters
     ----------
     data_home : str, default=None
-        Specify another download and cache folder for the datasets. By default
-        all data is stored in `~/scikit_learn_data` subfolders.
+        Specify another download and cache folder for the datasets. By
+        default all data is stored in `~/scikit_learn_data` subfolders.
 
     download_if_missing : bool, default=True
         If False, raise an IOError if the data is not locally available
@@ -517,7 +518,8 @@ def fetch_numerai_live(*args, **kwargs):
 
         (data, target) : tuple if `return_X_y=True`
             Only present when `return_X_y=True`
-            `target` corresponds to the column set by the `target` attribute.
+            `target` corresponds to the column set by the `target`
+            attribute.
 
     Notes
     -----
@@ -537,8 +539,8 @@ def fetch_numerai_tournament(*args, **kwargs):
     Parameters
     ----------
     data_home : str, default=None
-        Specify another download and cache folder for the datasets. By default
-        all data is stored in `~/scikit_learn_data` subfolders.
+        Specify another download and cache folder for the datasets. By
+        default all data is stored in `~/scikit_learn_data` subfolders.
 
     download_if_missing : bool, default=True
         If False, raise an IOError if the data is not locally available
@@ -614,7 +616,8 @@ def fetch_numerai_tournament(*args, **kwargs):
 
         (data, target) : tuple if `return_X_y=True`
             Only present when `return_X_y=True`
-            `target` corresponds to the column set by the `target` attribute.
+            `target` corresponds to the column set by the `target`
+            attribute.
 
     Notes
     -----
@@ -624,6 +627,109 @@ def fetch_numerai_tournament(*args, **kwargs):
         "numerai_tournament_data.parquet",
         "numerai_tournament_data_int8.parquet",
         "tournament",
+    )
+    return fetcher(*args, **kwargs)
+
+
+def _get_numerai_prediction_fetcher(filename, name):
+    """Return prediction fetch function for passed files"""
+
+    def fetch_numerai_predictions(
+        *,
+        data_home=None,
+        download_if_missing=True,
+        return_y=False,
+        as_frame=False,
+    ):
+        # Get file locations
+        data_home = get_data_home(data_home=data_home)
+        if not exists(data_home):
+            makedirs(data_home)
+        filepath = "/".join([data_home, filename])
+
+        # Download and read dataset
+        if not exists(filepath):
+            if not download_if_missing:
+                raise IOError("Data not found and `download_if_missing` is False")
+
+            logger.info(f"Downloading Numerai {name} predictions to {filepath}")
+            napi = NumerAPI()
+            napi.download_dataset(filename, dest_path=filepath)
+
+            df = pd.read_parquet(filepath)
+            remove(filepath)
+        else:
+            df = pd.read_parquet(filepath)
+
+        y = df.prediction
+        id_ = df.index
+
+        if not as_frame:
+            # Convert to numpy
+            y = y.to_numpy()
+            id_ = id_.to_numpy()
+            df = None
+
+        if return_y:
+            return y
+
+        return Bunch(
+            prediction=y,
+            id=id_,
+            DESCR=f"Numerai main tournament: {name} predictions",
+            frame=df,
+        )
+
+    return fetch_numerai_predictions
+
+
+def fetch_numerai_example_predictions(*args, **kwargs):
+    """Load the Numerai example predictions.
+
+    Parameters
+    ----------
+    data_home : str, default=None
+        Specify another download and cache folder for the datasets. By
+        default all data is stored in `~/scikit_learn_data` subfolders.
+
+    download_if_missing : bool, default=True
+        If False, raise an IOError if the data is not locally available
+        instead of trying to download the data from the source bucket.
+
+    return_y : bool, default=False.
+        If True, returns `prediction` instead of a Bunch object.
+
+    as_frame : bool, default=False
+        If True, `prediction` and `id` are pandas Series. `frame` will
+        be given.
+
+    Returns
+    -------
+    dataset : :class:`~sklearn.utils.Bunch`
+        Dictionary-like object, with the following attributes.
+
+        prediction : {ndarray, Series} of shape (n_samples,)
+            When `as_frame=True`, `prediction` is a pandas Series.
+
+        id : {ndarray, Series} of shape (n_samples,)
+            `id` of each `prediction` row.
+            When `as_frame=True`, `id` is a pandas Series.
+
+        frame : DataFrame if `as_frame=True`
+            Only present when `as_frame=True`. Pandas DataFrame with
+            `prediction`.
+
+        y : {ndarray, Series} of shape (n_samples,) if `return_y=True`
+            Only present when `return_y=True`. When `as_frame=True`,
+            `y` is a pandas Series.
+
+    Notes
+    -----
+    Data changes weekly.
+    """
+    fetcher = _get_numerai_prediction_fetcher(
+        "example_predictions.parquet",
+        "example",
     )
     return fetcher(*args, **kwargs)
 
