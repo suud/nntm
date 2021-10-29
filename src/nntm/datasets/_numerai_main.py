@@ -99,8 +99,9 @@ def fetch_numerai_training(
         Target column to return as `y` when `return_X_y=True`.
 
     as_frame : bool, default=False
-        If True, data is a pandas DataFrame, targets are pandas Series,
-        info a pandas DataFrame and frame will be given.
+        If True, `data` is a pandas DataFrame. `target`,
+        `target_<name>`, `id`, `era` and `data_type` are pandas Series.
+        `frame` will be given.
 
     columns : list, default=None
         If not None, only these columns will be read from the file.
@@ -131,11 +132,17 @@ def fetch_numerai_training(
             See `target_names` for available targets.
             When `as_frame=True`, `target_<name>` is a pandas Series.
 
-        info : {ndarray, DataFrame} of shape (2412105, 3)
-            Each row corresponding to `id`, `era`, `data_type` in order.
-            `era` uses the `int` data type (as opposed to the original dataset
-            where `era`s are strings).
-            When `as_frame=True`, `info` is a pandas DataFrame.
+        id : {ndarray, Series} of shape (2412105,)
+            `id` of each row in `data`.
+            When `as_frame=True`, `id` is a pandas Series.
+
+        era : {ndarray, Series} of shape (2412105,)
+            `era` of each row in `data`.
+            When `as_frame=True`, `era` is a pandas Series.
+
+        data_type : {ndarray, Series} of shape (2412105,)
+            `data_type` of each row in `data`.
+            When `as_frame=True`, `data_type` is a pandas Series.
 
         feature_names : list of length 1050
             List of ordered feature names used in the dataset.
@@ -164,11 +171,11 @@ def fetch_numerai_training(
     `target` corresponds to `target_nomi_20`.
 
     """
-    # make sure required columns will be read
+    # Make sure required columns will be read
     if columns:
         columns = list(set(columns + ["era", "data_type"]))
 
-    # get file locations
+    # Get file locations
     data_home = get_data_home(data_home=data_home)
     if not exists(data_home):
         makedirs(data_home)
@@ -177,7 +184,7 @@ def fetch_numerai_training(
         filename = "numerai_training_data_int8.parquet"
     filepath = "/".join([data_home, filename])
 
-    # download and read dataset
+    # Download and read dataset
     if not exists(filepath):
         if not download_if_missing:
             raise IOError("Data not found and `download_if_missing` is False")
@@ -191,38 +198,36 @@ def fetch_numerai_training(
     else:
         df = pd.read_parquet(filepath, columns=columns)
 
-    # get feature and target columns
+    # Get feature and target columns
     feature_names = _get_feature_names(df)
     target_names = _get_target_names(df)
 
     if df[feature_names].isnull().values.any():
-        # replace NaNs
+        # Replace NaNs
         na_value = _get_na_value(na_value=na_value, is_int8=int8)
         logger.info(f"Replacing NaN feature values with '{na_value}'")
         dtype = _get_dtype(is_int8=int8)
         df[feature_names] = df[feature_names].fillna(na_value)
 
-    # ensure expected data type for features
+    # Ensure expected data type for features
     df[feature_names] = df[feature_names].astype(dtype)
 
-    # convert era's to int
+    # Convert era's to int
     df["era"] = df["era"].astype(int)
 
     X = df[feature_names]
     target_dict = {tn: df[tn] for tn in target_names}
-    info = pd.DataFrame(
-        {
-            "id": df.index,
-            "era": df.era,
-            "data_type": df.data_type,
-        }
-    )
+    id_ = df.index
+    era = df.era
+    data_type = df.data_type
 
     if not as_frame:
-        # convert to numpy
+        # Convert to numpy
         X = X.to_numpy(dtype=dtype)
         target_dict = {k: v.to_numpy() for k, v in target_dict.items()}
-        info = info.to_numpy()
+        id_ = id_.to_numpy()
+        era = era.to_numpy()
+        data_type = data_type.to_numpy()
         df = None
 
     if return_X_y:
@@ -231,7 +236,9 @@ def fetch_numerai_training(
     return Bunch(
         data=X,
         **target_dict,
-        info=info,
+        id=id_,
+        era=era,
+        data_type=data_type,
         feature_names=feature_names,
         target_names=target_names,
         int8=int8,
@@ -272,8 +279,9 @@ def fetch_numerai_validation(
         Target column to return as `y` when `return_X_y=True`.
 
     as_frame : bool, default=False
-        If True, data is a pandas DataFrame, targets are pandas Series,
-        info a pandas DataFrame and frame will be given.
+        If True, `data` is a pandas DataFrame. `target`,
+        `target_<name>`, `id`, `era` and `data_type` are pandas Series.
+        `frame` will be given.
 
     columns : list, default=None
         If not None, only these columns will be read from the file.
@@ -304,11 +312,17 @@ def fetch_numerai_validation(
             See `target_names` for available targets.
             When `as_frame=True`, `target_<name>` is a pandas Series.
 
-        info : {ndarray, DataFrame} of shape (2412105, 3)
-            Each row corresponding to `id`, `era`, `data_type` in order.
-            `era` uses the `int` data type (as opposed to the original dataset
-            where `era`s are strings).
-            When `as_frame=True`, `info` is a pandas DataFrame.
+        id : {ndarray, Series} of shape (2412105,)
+            `id` of each row in `data`.
+            When `as_frame=True`, `id` is a pandas Series.
+
+        era : {ndarray, Series} of shape (2412105,)
+            `era` of each row in `data`.
+            When `as_frame=True`, `era` is a pandas Series.
+
+        data_type : {ndarray, Series} of shape (2412105,)
+            `data_type` of each row in `data`.
+            When `as_frame=True`, `data_type` is a pandas Series.
 
         feature_names : list of length 1050
             List of ordered feature names used in the dataset.
@@ -337,11 +351,11 @@ def fetch_numerai_validation(
     `target` corresponds to `target_nomi_20`.
 
     """
-    # make sure required columns will be read
+    # Make sure required columns will be read
     if columns:
         columns = list(set(columns + ["era", "data_type"]))
 
-    # get file locations
+    # Get file locations
     data_home = get_data_home(data_home=data_home)
     if not exists(data_home):
         makedirs(data_home)
@@ -350,7 +364,7 @@ def fetch_numerai_validation(
         filename = "numerai_validation_data_int8.parquet"
     filepath = "/".join([data_home, filename])
 
-    # download and read dataset
+    # Download and read dataset
     if not exists(filepath):
         if not download_if_missing:
             raise IOError("Data not found and `download_if_missing` is False")
@@ -364,38 +378,36 @@ def fetch_numerai_validation(
     else:
         df = pd.read_parquet(filepath, columns=columns)
 
-    # get feature and target columns
+    # Get feature and target columns
     feature_names = _get_feature_names(df)
     target_names = _get_target_names(df)
 
     if df[feature_names].isnull().values.any():
-        # replace NaNs
+        # Replace NaNs
         na_value = _get_na_value(na_value=na_value, is_int8=int8)
         logger.info(f"Replacing NaN feature values with '{na_value}'")
         dtype = _get_dtype(is_int8=int8)
         df[feature_names] = df[feature_names].fillna(na_value)
 
-    # ensure expected data type for features
+    # Ensure expected data type for features
     df[feature_names] = df[feature_names].astype(dtype)
 
-    # convert era's to int
+    # Convert era's to int
     df["era"] = df["era"].astype(int)
 
     X = df[feature_names]
     target_dict = {tn: df[tn] for tn in target_names}
-    info = pd.DataFrame(
-        {
-            "id": df.index,
-            "era": df.era,
-            "data_type": df.data_type,
-        }
-    )
+    id_ = df.index
+    era = df.era
+    data_type = df.data_type
 
     if not as_frame:
-        # convert to numpy
+        # Convert to numpy
         X = X.to_numpy(dtype=dtype)
         target_dict = {k: v.to_numpy() for k, v in target_dict.items()}
-        info = info.to_numpy()
+        id_ = id_.to_numpy()
+        era = era.to_numpy()
+        data_type = data_type.to_numpy()
         df = None
 
     if return_X_y:
@@ -404,7 +416,9 @@ def fetch_numerai_validation(
     return Bunch(
         data=X,
         **target_dict,
-        info=info,
+        id=id_,
+        era=era,
+        data_type=data_type,
         feature_names=feature_names,
         target_names=target_names,
         int8=int8,
