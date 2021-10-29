@@ -734,6 +734,53 @@ def fetch_numerai_example_predictions(*args, **kwargs):
     return fetcher(*args, **kwargs)
 
 
+def fetch_numerai_example_validation_predictions(*args, **kwargs):
+    """Load the Numerai example validation predictions.
+
+    Parameters
+    ----------
+    data_home : str, default=None
+        Specify another download and cache folder for the datasets. By
+        default all data is stored in `~/scikit_learn_data` subfolders.
+
+    download_if_missing : bool, default=True
+        If False, raise an IOError if the data is not locally available
+        instead of trying to download the data from the source bucket.
+
+    return_y : bool, default=False.
+        If True, returns `prediction` instead of a Bunch object.
+
+    as_frame : bool, default=False
+        If True, `prediction` and `id` are pandas Series. `frame` will
+        be given.
+
+    Returns
+    -------
+    dataset : :class:`~sklearn.utils.Bunch`
+        Dictionary-like object, with the following attributes.
+
+        prediction : {ndarray, Series} of shape (539658,)
+            When `as_frame=True`, `prediction` is a pandas Series.
+
+        id : {ndarray, Series} of shape (539658,)
+            `id` of each `prediction` row.
+            When `as_frame=True`, `id` is a pandas Series.
+
+        frame : DataFrame if `as_frame=True`
+            Only present when `as_frame=True`. Pandas DataFrame with
+            `prediction`.
+
+        y : {ndarray, Series} of shape (539658,) if `return_y=True`
+            Only present when `return_y=True`. When `as_frame=True`,
+            `y` is a pandas Series.
+    """
+    fetcher = _get_numerai_prediction_fetcher(
+        "example_validation_predictions.parquet",
+        "example validation",
+    )
+    return fetcher(*args, **kwargs)
+
+
 def _get_feature_names(df: pd.DataFrame) -> List[str]:
     """Get list of `df`s feature column names."""
     return [c for c in df if c.startswith("feature_")]
