@@ -54,7 +54,7 @@ https://github.com/numerai/example-scripts/blob/0a8c4f764a3aee3b7c1709058dd1488b
 https://github.com/uuazed/numerapi
 
 """
-from os.path import exists
+from os.path import exists, splitext
 from os import makedirs, remove
 from typing import List
 
@@ -67,7 +67,7 @@ from sklearn.utils import Bunch
 logger = logging.getLogger(__name__)
 
 
-def _get_numerai_fetcher(filename_float32, filename_int8, name):
+def _get_numerai_fetcher(filename_float32, filename_int8, name, has_rounds=False):
     """Return fetch function for passed files"""
 
     def fetch_numerai(
@@ -79,10 +79,19 @@ def _get_numerai_fetcher(filename_float32, filename_int8, name):
         as_frame=False,
         columns=None,
         int8=True,
+        round_num=None,
     ):
         # Make sure required columns will be read
         if columns:
             columns = list(set(columns + ["era", "data_type"]))
+
+        # Get round (if dataset supports rounds)
+        napi = NumerAPI()
+        if round_num and not has_rounds:
+            raise ValueError("`round_num` given for a dataset without rounds.")
+        if not round_num and has_rounds:
+            round_num = napi.get_current_round()
+            logger.info(f"Using current round={round_num}")
 
         # Get file locations
         data_home = get_data_home(data_home=data_home)
@@ -91,6 +100,9 @@ def _get_numerai_fetcher(filename_float32, filename_int8, name):
         filename = filename_float32
         if int8:
             filename = filename_int8
+        if round_num:
+            suffix = "_" + str(round_num)
+            filename = _add_filename_suffix(filename, suffix)
         filepath = "/".join([data_home, filename])
 
         # Download and read dataset
@@ -99,7 +111,6 @@ def _get_numerai_fetcher(filename_float32, filename_int8, name):
                 raise IOError("Data not found and `download_if_missing` is False")
 
             logger.info(f"Downloading Numerai {name} data to {filepath}")
-            napi = NumerAPI()
             napi.download_dataset(filename, dest_path=filepath)
 
             df = pd.read_parquet(filepath, columns=columns)
@@ -469,6 +480,10 @@ def fetch_numerai_live(*args, **kwargs):
         If True, the feature columns will use the `int8` data type
         instead of `float32`. Target columns are always `float32`.
 
+    round_num : int, default=None
+        Tournament round to download. If None, current round will be
+        downloaded.
+
     Returns
     -------
     dataset : :class:`~sklearn.utils.Bunch`
@@ -529,6 +544,7 @@ def fetch_numerai_live(*args, **kwargs):
         "numerai_live_data.parquet",
         "numerai_live_data_int8.parquet",
         "live",
+        has_rounds=True,
     )
     return fetcher(*args, **kwargs)
 
@@ -566,6 +582,10 @@ def fetch_numerai_tournament(*args, **kwargs):
     int8 : bool, default=True
         If True, the feature columns will use the `int8` data type
         instead of `float32`. Target columns are always `float32`.
+
+    round_num : int, default=None
+        Tournament round to download. If None, current round will be
+        downloaded.
 
     Returns
     -------
@@ -627,11 +647,12 @@ def fetch_numerai_tournament(*args, **kwargs):
         "numerai_tournament_data.parquet",
         "numerai_tournament_data_int8.parquet",
         "tournament",
+        has_rounds=True,
     )
     return fetcher(*args, **kwargs)
 
 
-def _get_numerai_prediction_fetcher(filename, name):
+def _get_numerai_prediction_fetcher(fname, name, has_rounds=False):
     """Return prediction fetch function for passed files"""
 
     def fetch_numerai_predictions(
@@ -640,11 +661,24 @@ def _get_numerai_prediction_fetcher(filename, name):
         download_if_missing=True,
         return_y=False,
         as_frame=False,
+        round_num=None,
     ):
+        # Get round (if predictions support rounds)
+        napi = NumerAPI()
+        if round_num and not has_rounds:
+            raise ValueError("`round_num` given for predictions without rounds.")
+        if not round_num and has_rounds:
+            round_num = napi.get_current_round()
+            logger.info(f"Using current round={round_num}")
+
         # Get file locations
         data_home = get_data_home(data_home=data_home)
+        filename = fname
         if not exists(data_home):
             makedirs(data_home)
+        if round_num:
+            suffix = "_" + str(round_num)
+            filename = _add_filename_suffix(filename, suffix)
         filepath = "/".join([data_home, filename])
 
         # Download and read dataset
@@ -653,7 +687,6 @@ def _get_numerai_prediction_fetcher(filename, name):
                 raise IOError("Data not found and `download_if_missing` is False")
 
             logger.info(f"Downloading Numerai {name} predictions to {filepath}")
-            napi = NumerAPI()
             napi.download_dataset(filename, dest_path=filepath)
 
             df = pd.read_parquet(filepath)
@@ -703,6 +736,10 @@ def fetch_numerai_example_predictions(*args, **kwargs):
         If True, `prediction` and `id` are pandas Series. `frame` will
         be given.
 
+    round_num : int, default=None
+        Prediction round to download. If None, current round will be
+        downloaded.
+
     Returns
     -------
     dataset : :class:`~sklearn.utils.Bunch`
@@ -730,6 +767,7 @@ def fetch_numerai_example_predictions(*args, **kwargs):
     fetcher = _get_numerai_prediction_fetcher(
         "example_predictions.parquet",
         "example",
+        has_rounds=True,
     )
     return fetcher(*args, **kwargs)
 
@@ -797,3 +835,9 @@ def _get_dtype(is_int8: bool) -> str:
         return "int8"
     else:
         return "float32"
+
+
+def _add_filename_suffix(filepath: str, suffix: str) -> str:
+    """Insert suffix between current filename and extension."""
+    filepath, file_extension = splitext(filepath)
+    return filepath + suffix + file_extension
