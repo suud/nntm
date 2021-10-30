@@ -8,5 +8,5 @@
 
 ## Usage
 ```sh
-pip install nntm==1.1.0
+pip install nntm==1.1.1
 ```
