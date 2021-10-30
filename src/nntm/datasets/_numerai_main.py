@@ -105,10 +105,13 @@ def _get_numerai_fetcher(filename_float32, filename_int8, name, has_rounds=False
         filename = filename_float32
         if int8:
             filename = filename_int8
+        filepath = "/".join([data_home, filename])
         if round_num:
             suffix = "_" + str(round_num)
-            filename = _add_filename_suffix(filename, suffix)
-        filepath = "/".join([data_home, filename])
+            filename_with_suffix = _add_filename_suffix(filename, suffix)
+            filepath = "/".join([data_home, filename_with_suffix])
+        else:
+            filepath = "/".join([data_home, filename])
 
         # Download and read dataset
         if not exists(filepath):
@@ -683,8 +686,10 @@ def _get_numerai_prediction_fetcher(fname, name, has_rounds=False):
             makedirs(data_home)
         if round_num:
             suffix = "_" + str(round_num)
-            filename = _add_filename_suffix(filename, suffix)
-        filepath = "/".join([data_home, filename])
+            filename_with_suffix = _add_filename_suffix(filename, suffix)
+            filepath = "/".join([data_home, filename_with_suffix])
+        else:
+            filepath = "/".join([data_home, filename])
 
         # Download and read dataset
         if not exists(filepath):
