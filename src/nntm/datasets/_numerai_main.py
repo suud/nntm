@@ -54,11 +54,12 @@ https://github.com/numerai/example-scripts/blob/0a8c4f764a3aee3b7c1709058dd1488b
 https://github.com/uuazed/numerapi
 
 """
+import json
+import logging
 from os.path import exists, splitext
 from os import makedirs, remove
 from typing import List
 
-import logging
 import pandas as pd
 from numerapi import NumerAPI
 from sklearn.datasets import get_data_home
@@ -819,6 +820,62 @@ def fetch_numerai_example_validation_predictions(*args, **kwargs):
     return fetcher(*args, **kwargs)
 
 
+def fetch_numerai_feature_metadata(*, data_home=None, download_if_missing=True):
+    """Load the Numerai feature metadata.
+
+    Parameters
+    ----------
+    data_home : str, default=None
+        Specify another download and cache folder for the feature
+        metadata. By default all data is stored in
+        `~/scikit_learn_data` subfolders.
+
+    download_if_missing : bool, default=True
+        If False, raise an IOError if the data is not locally available
+        instead of trying to download the data from the source bucket.
+
+    Returns
+    -------
+    feature_metadata : dict
+        Dictionary with the following keys.
+
+        feature_sets : dict
+            Dictionary containing lists of feature names as values.
+
+        feature_stats : dict
+            Dictionary with feature names as keys and a dictionary
+            of different statistics about each feature as values.
+
+    References
+    ----------
+
+    https://forum.numer.ai/t/october-2021-updates/4384
+
+    """
+    # Get file locations
+    data_home = get_data_home(data_home=data_home)
+    filename = "features.json"
+    if not exists(data_home):
+        makedirs(data_home)
+    filepath = "/".join([data_home, filename])
+
+    # Download and read dataset
+    if not exists(filepath):
+        if not download_if_missing:
+            raise IOError("Data not found and `download_if_missing` is False")
+
+        logger.info(f"Downloading Numerai feature metadata to {filepath}")
+        napi = NumerAPI()
+        napi.download_dataset(filename, dest_path=filepath)
+
+        feature_metadata_dict = _read_json_file(filepath)
+        remove(filepath)
+    else:
+        feature_metadata_dict = _read_json_file(filepath)
+
+    return feature_metadata_dict
+
+
 def _get_feature_names(df: pd.DataFrame) -> List[str]:
     """Get list of `df`s feature column names."""
     return [c for c in df if c.startswith("feature_")]
@@ -841,3 +898,11 @@ def _add_filename_suffix(filepath: str, suffix: str) -> str:
     """Insert suffix between current filename and extension."""
     filepath, file_extension = splitext(filepath)
     return filepath + suffix + file_extension
+
+
+def _read_json_file(filepath: str) -> dict:
+    """Return content of json file at filepath."""
+    with open(filepath) as json_file:
+        content = json.load(json_file)
+
+    return content
