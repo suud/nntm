@@ -1,3 +1,9 @@
+## 1.2.0 (2021-10-30)
+
+### Feat
+
+- add constants for feature and target names
+
 ## 1.1.1 (2021-10-30)
 
 ### Fix
