@@ -2,5 +2,5 @@
 
 ## Usage
 ```sh
-pip install nntm==1.0.0
+pip install nntm==1.1.0
 ```

@@ -1,3 +1,10 @@
+## 1.1.0 (2021-10-30)
+
+### Feat
+
+- add fetcher for feature metadata
+- add argument to fetch custom round
+
 ## 1.0.0 (2021-10-29)
 
 ### Feat

@@ -12,7 +12,7 @@ log_cli_level = "DEBUG"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.0.0"
+version = "1.1.0"
 version_files = [
     "src/nntm/__init__.py",
     "README.md"
