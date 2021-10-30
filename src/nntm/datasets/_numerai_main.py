@@ -54,6 +54,10 @@ https://github.com/numerai/example-scripts/blob/0a8c4f764a3aee3b7c1709058dd1488b
 https://github.com/uuazed/numerapi
 
 """
+
+# Author: Timo Sutterer <hi@timo-sutterer.de>
+# License: MIT
+
 import json
 import logging
 from os.path import exists, splitext
@@ -180,7 +184,7 @@ def fetch_numerai_training(*args, **kwargs):
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
 
-    return_X_y : bool, default=False.
+    return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
         object. A custom target column can be selected through the
         `target` parameter.
@@ -273,7 +277,7 @@ def fetch_numerai_test(*args, **kwargs):
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
 
-    return_X_y : bool, default=False.
+    return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
         object. A custom target column can be selected through the
         `target` parameter.
@@ -366,7 +370,7 @@ def fetch_numerai_validation(*args, **kwargs):
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
 
-    return_X_y : bool, default=False.
+    return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
         object. A custom target column can be selected through the
         `target` parameter.
@@ -460,7 +464,7 @@ def fetch_numerai_live(*args, **kwargs):
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
 
-    return_X_y : bool, default=False.
+    return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
         object. A custom target column can be selected through the
         `target` parameter.
@@ -563,7 +567,7 @@ def fetch_numerai_tournament(*args, **kwargs):
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
 
-    return_X_y : bool, default=False.
+    return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
         object. A custom target column can be selected through the
         `target` parameter.
