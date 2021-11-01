@@ -6,7 +6,29 @@
 
 # nntm
 
-## Usage
+## Installation
 ```sh
 pip install nntm==1.2.0
+```
+
+## Usage
+```python
+from nntm.datasets import (
+    fetch_numerai_training,
+    fetch_numerai_tournament,
+    COLUMN_NAMES_SMALL,
+)
+from sklearn.linear_model import LinearRegression
+
+# Leave out some columns to save RAM
+columns = COLUMN_NAMES_SMALL
+
+# Fit
+X_train, y_train = fetch_numerai_training(return_X_y=True, columns=columns)
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predict
+X_tourn, _ = fetch_numerai_tournament(return_X_y=True, columns=columns)
+y_pred = model.predict(X_tourn)
 ```
