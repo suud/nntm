@@ -76,6 +76,7 @@ def _get_numerai_fetcher(filename_float32, filename_int8, name, has_rounds=False
         *,
         data_home=None,
         download_if_missing=True,
+        keep=False,
         return_X_y=False,
         target="target",
         as_frame=False,
@@ -119,7 +120,8 @@ def _get_numerai_fetcher(filename_float32, filename_int8, name, has_rounds=False
             napi.download_dataset(filename, dest_path=filepath)
 
             df = pd.read_parquet(filepath, columns=columns)
-            remove(filepath)
+            if not keep:
+                remove(filepath)
         else:
             df = pd.read_parquet(filepath, columns=columns)
 
@@ -183,6 +185,10 @@ def fetch_numerai_training(*args, **kwargs):
     download_if_missing : bool, default=True
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
+
+    keep : bool, default=False
+        If True, does not remove the downloaded file from disk after
+        reading it.
 
     return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
@@ -277,6 +283,10 @@ def fetch_numerai_test(*args, **kwargs):
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
 
+    keep : bool, default=False
+        If True, does not remove the downloaded file from disk after
+        reading it.
+
     return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
         object. A custom target column can be selected through the
@@ -370,6 +380,10 @@ def fetch_numerai_validation(*args, **kwargs):
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
 
+    keep : bool, default=False
+        If True, does not remove the downloaded file from disk after
+        reading it.
+
     return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
         object. A custom target column can be selected through the
@@ -462,6 +476,10 @@ def fetch_numerai_live(*args, **kwargs):
     download_if_missing : bool, default=True
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
+
+    keep : bool, default=False
+        If True, does not remove the downloaded file from disk after
+        reading it.
 
     return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
@@ -564,6 +582,10 @@ def fetch_numerai_tournament(*args, **kwargs):
     download_if_missing : bool, default=True
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
+
+    keep : bool, default=False
+        If True, does not remove the downloaded file from disk after
+        reading it.
 
     return_X_y : bool, default=False
         If True, returns `(data.data, data.target)` instead of a Bunch
@@ -733,6 +755,10 @@ def fetch_numerai_example_predictions(*args, **kwargs):
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
 
+    keep : bool, default=False
+        If True, does not remove the downloaded file from disk after
+        reading it.
+
     return_y : bool, default=False.
         If True, returns `prediction` instead of a Bunch object.
 
@@ -789,6 +815,10 @@ def fetch_numerai_example_validation_predictions(*args, **kwargs):
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
 
+    keep : bool, default=False
+        If True, does not remove the downloaded file from disk after
+        reading it.
+
     return_y : bool, default=False.
         If True, returns `prediction` instead of a Bunch object.
 
@@ -823,7 +853,9 @@ def fetch_numerai_example_validation_predictions(*args, **kwargs):
     return fetcher(*args, **kwargs)
 
 
-def fetch_numerai_feature_metadata(*, data_home=None, download_if_missing=True):
+def fetch_numerai_feature_metadata(
+    *, data_home=None, download_if_missing=True, keep=False
+):
     """Load the Numerai feature metadata.
 
     Parameters
@@ -836,6 +868,10 @@ def fetch_numerai_feature_metadata(*, data_home=None, download_if_missing=True):
     download_if_missing : bool, default=True
         If False, raise an IOError if the data is not locally available
         instead of trying to download the data from the source bucket.
+
+    keep : bool, default=False
+        If True, does not remove the downloaded file from disk after
+        reading it.
 
     Returns
     -------
@@ -872,7 +908,8 @@ def fetch_numerai_feature_metadata(*, data_home=None, download_if_missing=True):
         napi.download_dataset(filename, dest_path=filepath)
 
         feature_metadata_dict = _read_json_file(filepath)
-        remove(filepath)
+        if not keep:
+            remove(filepath)
     else:
         feature_metadata_dict = _read_json_file(filepath)
 
