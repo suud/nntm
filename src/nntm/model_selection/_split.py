@@ -114,7 +114,7 @@ class PurgedKFold(BaseCrossValidator):
         if isinstance(X, np.ndarray) and groups is None:
             raise ValueError("`groups` parameter is required when X is a numpy array")
 
-        if isinstance(X, pd.DataFrame) and not groups and "era" not in X.columns:
+        if isinstance(X, pd.DataFrame) and groups is None and "era" not in X.columns:
             raise ValueError("`groups` parameter is required when X has no era column")
 
         X, y, groups = indexable(X, y, groups)
@@ -177,7 +177,7 @@ class PurgedKFold(BaseCrossValidator):
     def _get_eras(self, X, groups=None):
         """Generates integer eras."""
         eras = groups
-        if not groups:
+        if groups is None:
             eras = X["era"].tolist()
 
         for era in eras:
