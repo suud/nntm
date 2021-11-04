@@ -14,9 +14,6 @@ https://forum.numer.ai/t/super-massive-data-release-deep-dive/4053
 https://forum.numer.ai/t/october-2021-updates/4384
 """
 
-# Author: Timo Sutterer <hi@timo-sutterer.de>
-# License: MIT
-
 TARGET_NAMES_UNIQUE = [
     "target_nomi_20",
     "target_nomi_60",

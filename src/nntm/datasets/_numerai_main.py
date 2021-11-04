@@ -55,9 +55,6 @@ https://github.com/uuazed/numerapi
 
 """
 
-# Author: Timo Sutterer <hi@timo-sutterer.de>
-# License: MIT
-
 import json
 import logging
 from os.path import exists, splitext
