@@ -177,8 +177,8 @@ def fetch_numerai_training(*args, **kwargs):
     Parameters
     ----------
     data_home : str, default=None
-        Specify another download and cache folder for the datasets. By default
-        all data is stored in `~/scikit_learn_data` subfolders.
+        Specify another download and cache folder for the datasets. By
+        default all data is stored in `~/scikit_learn_data` subfolders.
 
     download_if_missing : bool, default=True
         If False, raise an IOError if the data is not locally available
@@ -253,8 +253,8 @@ def fetch_numerai_training(*args, **kwargs):
             `era`, `data_type`, features and targets.
 
         (data, target) : tuple if `return_X_y=True`
-            Only present when `return_X_y=True`
-            `target` corresponds to the column set by the `target` attribute.
+            Only present when `return_X_y=True`. `target` corresponds
+            to the column set by the `target` attribute.
     """
     fetcher = _get_numerai_fetcher(
         "numerai_training_data.parquet",
@@ -270,8 +270,8 @@ def fetch_numerai_test(*args, **kwargs):
     Parameters
     ----------
     data_home : str, default=None
-        Specify another download and cache folder for the datasets. By default
-        all data is stored in `~/scikit_learn_data` subfolders.
+        Specify another download and cache folder for the datasets. By
+        default all data is stored in `~/scikit_learn_data` subfolders.
 
     download_if_missing : bool, default=True
         If False, raise an IOError if the data is not locally available
@@ -346,8 +346,8 @@ def fetch_numerai_test(*args, **kwargs):
             `era`, `data_type`, features and targets.
 
         (data, target) : tuple if `return_X_y=True`
-            Only present when `return_X_y=True`
-            `target` corresponds to the column set by the `target` attribute.
+            Only present when `return_X_y=True`. `target` corresponds
+            to the column set by the `target` attribute.
     """
     fetcher = _get_numerai_fetcher(
         "numerai_test_data.parquet",
@@ -439,9 +439,8 @@ def fetch_numerai_validation(*args, **kwargs):
             `era`, `data_type`, features and targets.
 
         (data, target) : tuple if `return_X_y=True`
-            Only present when `return_X_y=True`
-            `target` corresponds to the column set by the `target`
-            attribute.
+            Only present when `return_X_y=True`. `target` corresponds
+            to the column set by the `target` attribute.
     """
     fetcher = _get_numerai_fetcher(
         "numerai_validation_data.parquet",
@@ -537,9 +536,8 @@ def fetch_numerai_live(*args, **kwargs):
             `era`, `data_type`, features and targets.
 
         (data, target) : tuple if `return_X_y=True`
-            Only present when `return_X_y=True`
-            `target` corresponds to the column set by the `target`
-            attribute.
+            Only present when `return_X_y=True`. `target` corresponds
+            to the column set by the `target` attribute.
 
     Notes
     -----
@@ -640,9 +638,8 @@ def fetch_numerai_tournament(*args, **kwargs):
             `era`, `data_type`, features and targets.
 
         (data, target) : tuple if `return_X_y=True`
-            Only present when `return_X_y=True`
-            `target` corresponds to the column set by the `target`
-            attribute.
+            Only present when `return_X_y=True`. `target` corresponds
+            to the column set by the `target` attribute.
 
     Notes
     -----
