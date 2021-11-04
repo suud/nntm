@@ -111,7 +111,7 @@ class PurgedKFold(BaseCrossValidator):
         test : ndarray
             The testing set indices for that split.
         """
-        if isinstance(X, np.ndarray) and not groups:
+        if isinstance(X, np.ndarray) and groups is None:
             raise ValueError("`groups` parameter is required when X is a numpy array")
 
         if isinstance(X, pd.DataFrame) and not groups and "era" not in X.columns:
