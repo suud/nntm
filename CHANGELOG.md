@@ -1,3 +1,9 @@
+## 1.2.1 (2021-11-04)
+
+### Fix
+
+- explicitly check if groups is None
+
 ## 1.2.0 (2021-10-30)
 
 ### Feat
