@@ -1,3 +1,9 @@
+## 1.3.0 (2021-11-04)
+
+### Feat
+
+- add argument to keep downloaded file
+
 ## 1.2.2 (2021-11-04)
 
 ### Fix
