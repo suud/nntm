@@ -39,6 +39,16 @@ class PurgedKFold(BaseCrossValidator):
 
     Data is assumed to be contiguous (shuffle=False).
 
+    Parameters
+    ----------
+    n_splits : int, default=5
+        Number of folds. Must be at least 2.
+    target_days : int, default=20
+        Days between the observation of samples and the target.
+    embargo : float between 0.0 and 1.0, default=None
+        Relative number of eras to be purged after every test set.
+        (`embargo` * `total_era_count`) eras are embargoed.
+
     References
     ----------
     .. [1] `Marcos Lopez de Prado (2018). Advances in Financial Machine
