@@ -15,6 +15,7 @@ functions to split the data based on a preset strategy.
 
 import logging
 import numbers
+from collections.abc import Iterable
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import BaseCrossValidator
@@ -23,7 +24,7 @@ from ..utils.validation import _num_samples
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["PurgedKFold"]
+__all__ = ["PurgedKFold", "check_cv"]
 
 
 class PurgedKFold(BaseCrossValidator):
@@ -199,3 +200,86 @@ class PurgedKFold(BaseCrossValidator):
             Returns the number of splitting iterations in the cross-validator.
         """
         return self.n_splits
+
+
+class _CVIterableWrapper(BaseCrossValidator):
+    """Wrapper class for old style cv objects and iterables."""
+
+    def __init__(self, cv):
+        self.cv = list(cv)
+
+    def get_n_splits(self, X=None, y=None, groups=None):
+        """Returns the number of splitting iterations in the cross-validator
+        Parameters
+        ----------
+        X : object
+            Always ignored, exists for compatibility.
+        y : object
+            Always ignored, exists for compatibility.
+        groups : object
+            Always ignored, exists for compatibility.
+        Returns
+        -------
+        n_splits : int
+            Returns the number of splitting iterations in the cross-validator.
+        """
+        return len(self.cv)
+
+    def split(self, X=None, y=None, groups=None):
+        """Generate indices to split data into training and test set.
+        Parameters
+        ----------
+        X : object
+            Always ignored, exists for compatibility.
+        y : object
+            Always ignored, exists for compatibility.
+        groups : object
+            Always ignored, exists for compatibility.
+        Yields
+        ------
+        train : ndarray
+            The training set indices for that split.
+        test : ndarray
+            The testing set indices for that split.
+        """
+        for train, test in self.cv:
+            yield train, test
+
+
+def check_cv(cv=5, *, target_days=20, embargo=None):
+    """Input checker utility for building a cross-validator
+    Parameters
+    ----------
+    cv : int, cross-validation generator or an iterable, default=None
+        Determines the cross-validation splitting strategy.
+        Possible inputs for cv are:
+        - None, to use the default 5-fold purged cross validation,
+        - integer, to specify the number of folds for purged cross
+          validation,
+        - An iterable yielding (train, test) splits as arrays of
+          indices.
+    target_days : int, default=20
+        Days between the observation of samples and the target.
+    embargo : float between 0.0 and 1.0, default=None
+        Relative number of eras to be purged after every test set.
+        (`embargo` * `total_era_count`) eras are embargoed.
+    Returns
+    -------
+    checked_cv : a cross-validator instance.
+        The return value is a cross-validator which generates the
+        train/test splits via the ``split`` method.
+    """
+    cv = 5 if cv is None else cv
+    if isinstance(cv, numbers.Integral):
+        return PurgedKFold(n_splits=cv, target_days=target_days, embargo=embargo)
+
+    if not hasattr(cv, "split") or isinstance(cv, str):
+        if not isinstance(cv, Iterable) or isinstance(cv, str):
+            raise ValueError(
+                "Expected cv as an integer, cross-validation "
+                "object (from nntm.model_selection) "
+                f"or an iterable. Got {cv}."
+            )
+        return _CVIterableWrapper(cv)
+
+    return cv  # New style cv objects are passed without any modification
