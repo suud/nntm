@@ -187,9 +187,7 @@ class PurgedKFold(BaseCrossValidator):
 
     def _get_eras(self, X, groups=None):
         """Generates integer eras."""
-        eras = groups
-        if groups is None:
-            eras = X["era"].tolist()
+        eras = groups if groups is not None else X["era"].tolist()
 
         for era in eras:
             yield int(era)
