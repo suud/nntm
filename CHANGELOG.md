@@ -1,3 +1,15 @@
+## 1.4.0 (2021-11-11)
+
+### Feat
+
+- add validation_curve
+- add numerai correlation score
+- add utility function to build cv
+
+### Refactor
+
+- simplify function
+
 ## 1.3.0 (2021-11-04)
 
 ### Feat

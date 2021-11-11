@@ -9,7 +9,7 @@ A set of modules for the Numerai tournament.
 
 ## Installation
 ```sh
-pip install nntm==1.3.0
+pip install nntm==1.4.0
 ```
 
 ## Usage
