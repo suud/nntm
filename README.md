@@ -5,7 +5,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # nntm
-A set of modules for the Numerai tournament.
+A set of modules for the [Numerai tournament](https://numer.ai/tournament).
 
 ## Installation
 ```sh
