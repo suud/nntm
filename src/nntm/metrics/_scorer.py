@@ -351,7 +351,7 @@ class _PredictWithErasScorer(_BaseScorer):
         if eras is None:
             raise ValueError("`eras` are required for `_PredictWithErasScorer`.")
 
-        y_pred = method_caller(estimator, "predict", X, eras)
+        y_pred = method_caller(estimator, "predict", X)
         if sample_weight is not None:
             return self._sign * self._score_func(
                 y_true, y_pred, sample_weight=sample_weight, **self._kwargs
