@@ -1,3 +1,12 @@
+## 1.4.1 (2021-11-14)
+
+### Fix
+
+- set factory args
+- don't pass eras to predict method
+- pass eras to scorers on call
+- convert ndarray to series
+
 ## 1.4.0 (2021-11-11)
 
 ### Feat
