@@ -1,6 +1,7 @@
 """Metrics to assess performance on Numerai tournament predictions."""
 
 import numpy as np
+import pandas as pd
 from sklearn.utils.validation import check_consistent_length
 
 __all__ = ["corr_score"]
@@ -29,6 +30,10 @@ def corr_score(y_true, y_pred, eras):
         rank_pred = y_pred.rank(pct=True, method="first")
     else:
         check_consistent_length(y_true, y_pred, eras)
+
+        if isinstance(y_pred, np.ndarray):
+            y_pred = pd.Series(y_pred)
+
         rank_pred = y_pred.groupby(eras).apply(
             lambda x: x.rank(pct=True, method="first")
         )
