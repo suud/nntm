@@ -359,6 +359,9 @@ class _PredictWithErasScorer(_BaseScorer):
         else:
             return self._sign * self._score_func(y_true, y_pred, eras, **self._kwargs)
 
+    def _factory_args(self):
+        return ", needs_eras=True"
+
 
 def get_scorer(scoring):
     """Get a scorer from string.
