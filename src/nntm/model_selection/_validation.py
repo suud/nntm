@@ -371,12 +371,10 @@ def _score(estimator, X_test, y_test, eras_test, scorer, error_score="raise"):
         scorer = _MultimetricScorer(**scorer)
 
     try:
-        if isinstance(scorer, _PredictWithErasScorer):
-            scores = scorer(estimator, X_test, y_test, eras_test)
-        elif y_test is None:
+        if y_test is None:
             scores = scorer(estimator, X_test)
         else:
-            scores = scorer(estimator, X_test, y_test)
+            scores = scorer(estimator, X_test, y_test, eras=eras_test)
     except Exception:
         if error_score == "raise":
             raise

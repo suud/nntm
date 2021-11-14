@@ -150,7 +150,7 @@ class _BaseScorer:
             kwargs_string,
         )
 
-    def __call__(self, estimator, X, y_true, sample_weight=None):
+    def __call__(self, estimator, X, y_true, sample_weight=None, eras=None):
         """Evaluate predicted target values for X relative to y_true.
         Parameters
         ----------
@@ -163,6 +163,7 @@ class _BaseScorer:
             Gold standard target values for X.
         sample_weight : array-like of shape (n_samples,), default=None
             Sample weights.
+        eras : TODO
         Returns
         -------
         score : float
@@ -174,6 +175,7 @@ class _BaseScorer:
             X,
             y_true,
             sample_weight=sample_weight,
+            eras=eras,
         )
 
     def _factory_args(self):
@@ -182,7 +184,7 @@ class _BaseScorer:
 
 
 class _PredictScorer(_BaseScorer):
-    def _score(self, method_caller, estimator, X, y_true, sample_weight=None):
+    def _score(self, method_caller, estimator, X, y_true, sample_weight=None, **kwargs):
         """Evaluate predicted target values for X relative to y_true.
         Parameters
         ----------
@@ -214,7 +216,7 @@ class _PredictScorer(_BaseScorer):
 
 
 class _ProbaScorer(_BaseScorer):
-    def _score(self, method_caller, clf, X, y, sample_weight=None):
+    def _score(self, method_caller, clf, X, y, sample_weight=None, **kwargs):
         """Evaluate predicted probabilities for X relative to y_true.
         Parameters
         ----------
@@ -256,7 +258,7 @@ class _ProbaScorer(_BaseScorer):
 
 
 class _ThresholdScorer(_BaseScorer):
-    def _score(self, method_caller, clf, X, y, sample_weight=None):
+    def _score(self, method_caller, clf, X, y, sample_weight=None, **kwargs):
         """Evaluate decision function output for X relative to y_true.
         Parameters
         ----------
@@ -322,7 +324,9 @@ class _ThresholdScorer(_BaseScorer):
 
 
 class _PredictWithErasScorer(_BaseScorer):
-    def _score(self, method_caller, estimator, X, eras, y_true, sample_weight=None):
+    def _score(
+        self, method_caller, estimator, X, y_true, sample_weight=None, eras=None
+    ):
         """Evaluate predicted target values for X relative to y_true.
         Parameters
         ----------
@@ -334,16 +338,18 @@ class _PredictWithErasScorer(_BaseScorer):
             method; the output of that is used to compute the score.
         X : {array-like, sparse matrix}
             Test data that will be fed to estimator.predict.
-        eras : TODO
         y_true : array-like
             Gold standard target values for X.
         sample_weight : array-like of shape (n_samples,), default=None
             Sample weights.
+        eras : TODO
         Returns
         -------
         score : float
             Score function applied to prediction of estimator on X.
         """
+        if eras is None:
+            raise ValueError("`eras` are required for `_PredictWithErasScorer`.")
 
         y_pred = method_caller(estimator, "predict", X, eras)
         if sample_weight is not None:
