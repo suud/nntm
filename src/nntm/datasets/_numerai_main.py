@@ -167,6 +167,7 @@ def _get_numerai_fetcher(filename_float32, filename_int8, name, has_rounds=False
             target_names=target_names,
             int8=int8,
             DESCR=f"Numerai main tournament: {name} data",
+            round_num=round_num,
             frame=df,
         )
 
@@ -549,6 +550,9 @@ def fetch_numerai_live(*args, **kwargs):
         DESCR : string
             Description of the dataset.
 
+        round_num : int
+            Round number of the dataset.
+
         frame : DataFrame if `as_frame=True`
             Only present when `as_frame=True`. Pandas DataFrame with
             `era`, `data_type`, features and targets.
@@ -655,6 +659,9 @@ def fetch_numerai_tournament(*args, **kwargs):
         DESCR : string
             Description of the dataset.
 
+        round_num : int
+            Round number of the dataset.
+
         frame : DataFrame if `as_frame=True`
             Only present when `as_frame=True`. Pandas DataFrame with
             `era`, `data_type`, features and targets.
@@ -736,6 +743,7 @@ def _get_numerai_prediction_fetcher(fname, name, has_rounds=False):
             prediction=y,
             id=id_,
             DESCR=f"Numerai main tournament: {name} predictions",
+            round_num=round_num,
             frame=df,
         )
 
@@ -781,6 +789,9 @@ def fetch_numerai_example_predictions(*args, **kwargs):
         id : {ndarray, Series} of shape (n_samples,)
             `id` of each `prediction` row.
             When `as_frame=True`, `id` is a pandas Series.
+
+        round_num : int
+            Round number of the predictions.
 
         frame : DataFrame if `as_frame=True`
             Only present when `as_frame=True`. Pandas DataFrame with
