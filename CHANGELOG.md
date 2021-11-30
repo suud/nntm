@@ -1,3 +1,10 @@
+## 1.5.0 (2021-11-30)
+
+### Feat
+
+- add round_num attribute to datasets
+- add metrics to public api
+
 ## 1.4.1 (2021-11-14)
 
 ### Fix
