@@ -1,3 +1,9 @@
+## 1.6.0 (2021-12-05)
+
+### Feat
+
+- add function to submit tournament prediction
+
 ## 1.5.0 (2021-11-30)
 
 ### Feat
