@@ -7,6 +7,7 @@ from ._numerai_main import (
     fetch_numerai_example_predictions,
     fetch_numerai_example_validation_predictions,
     fetch_numerai_feature_metadata,
+    submit_numerai_tournament,
 )
 from ._numerai_main_meta import (
     TARGET_NAMES_UNIQUE,
@@ -28,6 +29,7 @@ __all__ = [
     "fetch_numerai_example_predictions",
     "fetch_numerai_example_validation_predictions",
     "fetch_numerai_feature_metadata",
+    "submit_numerai_tournament",
     "TARGET_NAMES_UNIQUE",
     "TARGET_NAMES",
     "FEATURE_NAMES_LEGACY",

@@ -14,14 +14,16 @@ pip install nntm==1.5.0
 
 ## Usage
 ```python
+from getpass import getpass
 from nntm.datasets import (
     fetch_numerai_training,
     fetch_numerai_tournament,
+    submit_numerai_tournament,
     COLUMN_NAMES_SMALL,
 )
 from sklearn.linear_model import LinearRegression
 
-# Leave out some columns to save RAM
+# Leave some columns out to save RAM
 columns = COLUMN_NAMES_SMALL
 
 # Fit
@@ -32,4 +34,12 @@ model.fit(X_train, y_train)
 # Predict
 X_tourn, _ = fetch_numerai_tournament(return_X_y=True, columns=columns)
 y_pred = model.predict(X_tourn)
+
+# Submit
+model_id = input("Model ID (numer.ai/models):")
+public_id = input("API Key Public ID (numer.ai/account):")
+secret_key = getpass("API Key Secret (numer.ai/account):")
+submit_numerai_tournament(
+    y_pred, model_id=model_id, public_id=public_id, secret_key=secret_key
+)
 ```

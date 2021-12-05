@@ -927,6 +927,77 @@ def fetch_numerai_feature_metadata(
     return feature_metadata_dict
 
 
+def submit_numerai_tournament(
+    prediction,
+    model_id=None,
+    public_id=None,
+    secret_key=None,
+    data_home=None,
+    keep=False,
+    version=2,
+):
+    """Submit Numerai main tournament prediction for current round.
+
+    Parameters
+    ----------
+    prediction : {list, Series}
+        Predicted values. Requires same order as example predictions.
+
+    model_id : str, default=None
+        Target model UUID. Required for accounts with multiple models.
+        See https://numer.ai/models
+
+    public_id : str, default=None
+        ID of an API key. Needs `Upload submissions` scope.
+        See https://numer.ai/account -> AUTOMATION.
+
+    secret_key : str, default=None
+        Secret of an API key. Needs `Upload submissions` scope.
+        See https://numer.ai/account -> AUTOMATION.
+
+    data_home : str, default=None
+        Specify another download and cache folder for the predictions.
+        By default all data is stored in `~/scikit_learn_data`
+        subfolders.
+
+    keep : bool, default=False
+        If True, does not remove the prediction csv file from disk
+        after uploading it.
+
+    version : int, default=2
+        Set to 1 to submit predictions for the 310 features dataset.
+        Set to 2 (default) to submit predictions for the 1050+
+        features dataset.
+    """
+    data_home = get_data_home(data_home=data_home)
+    if not exists(data_home):
+        makedirs(data_home)
+
+    napi = NumerAPI(public_id=public_id, secret_key=secret_key)
+    current_round_num = napi.get_current_round()
+    example_predictions = fetch_numerai_example_predictions(
+        data_home=data_home, as_frame=True, round_num=current_round_num
+    )
+    assert example_predictions.round_num == current_round_num
+
+    # rank from 0 to 1 to meet upload requirements
+    prediction = pd.Series(prediction).rank(pct=True).values
+
+    # create csv of predictions
+    prediction_df = example_predictions.frame
+    prediction_df["prediction"] = prediction
+    filename = f"predictions_{current_round_num}_{model_id}.csv"
+    filepath = "/".join([data_home, filename])
+    prediction_df.to_csv(filepath)
+
+    # submit predictions
+    napi.upload_predictions(filepath, model_id=model_id, version=version)
+
+    # remove prediction file
+    if not keep:
+        remove(filepath)
+
+
 def _get_feature_names(df: pd.DataFrame) -> List[str]:
     """Get list of `df`s feature column names."""
     return [c for c in df if c.startswith("feature_")]
