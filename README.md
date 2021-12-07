@@ -2,6 +2,7 @@
 [![PyPI status](https://img.shields.io/pypi/status/nntm.svg)](https://pypi.python.org/pypi/nntm/)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/nntm.svg)](https://pypi.python.org/pypi/nntm/)
 [![PyPI license](https://img.shields.io/pypi/l/nntm.svg)](https://pypi.python.org/pypi/nntm/)
+[![Documentation Status](https://img.shields.io/readthedocs/nntm)](https://nntm.readthedocs.io/en/latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # nntm
