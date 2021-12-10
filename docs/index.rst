@@ -6,7 +6,7 @@ Welcome to nntm's documentation!
    :caption: Contents:
 
    readme
-   modules
+   source/modules
 
 Indices and tables
 ==================
