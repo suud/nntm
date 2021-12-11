@@ -2,11 +2,13 @@ Welcome to nntm's documentation!
 ================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    readme
-   modules
+   nntm
+
+.. include:: readme.rst
 
 Indices and tables
 ==================
