@@ -44,3 +44,27 @@ submit_numerai_tournament(
     y_pred, model_id=model_id, public_id=public_id, secret_key=secret_key
 )
 ```
+
+## Development
+### Run Tests
+```sh
+pytest
+```
+
+### Docs
+```sh
+apt-get install -y python3-sphinx
+pip install -r docs/requirements.txt
+pip install .
+cd docs
+```
+#### Generate api documentation from docstrings
+
+```sh
+sphinx-apidoc -f -o source/ ../src/nntm/
+```
+
+#### Build html documentation
+```sh
+make html
+```
