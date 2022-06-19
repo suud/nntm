@@ -934,7 +934,7 @@ def submit_numerai_tournament(
     secret_key=None,
     data_home=None,
     keep=False,
-    version=2,
+    version=None,
 ):
     """Submit Numerai main tournament prediction for current round.
 
@@ -963,12 +963,10 @@ def submit_numerai_tournament(
     keep : bool, default=False
         If True, does not remove the prediction csv file from disk
         after uploading it.
-
-    version : int, default=2
-        Set to 1 to submit predictions for the 310 features dataset.
-        Set to 2 (default) to submit predictions for the 1050+
-        features dataset.
     """
+    if version is not None:
+        logger.warning("Argument 'version' is deprecated.")
+
     data_home = get_data_home(data_home=data_home)
     if not exists(data_home):
         makedirs(data_home)
@@ -991,7 +989,7 @@ def submit_numerai_tournament(
     prediction_df.to_csv(filepath)
 
     # submit predictions
-    napi.upload_predictions(filepath, model_id=model_id, version=version)
+    napi.upload_predictions(filepath, model_id=model_id)
 
     # remove prediction file
     if not keep:
