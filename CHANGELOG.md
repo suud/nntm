@@ -1,3 +1,9 @@
+## 1.6.1 (2022-06-19)
+
+### Fix
+
+- remove submission version
+
 ## 1.6.0 (2021-12-05)
 
 ### Feat
