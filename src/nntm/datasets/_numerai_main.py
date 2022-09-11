@@ -117,7 +117,7 @@ def _get_numerai_fetcher(filename_float32, filename_int8, name, has_rounds=False
                 raise IOError("Data not found and `download_if_missing` is False")
 
             logger.info(f"Downloading Numerai {name} data to {filepath}")
-            napi.download_dataset(filename, dest_path=filepath)
+            napi.download_dataset("/".join(["v3", filename]), dest_path=filepath)
 
             df = pd.read_parquet(filepath, columns=columns)
             if not keep:
@@ -720,7 +720,7 @@ def _get_numerai_prediction_fetcher(fname, name, has_rounds=False):
                 raise IOError("Data not found and `download_if_missing` is False")
 
             logger.info(f"Downloading Numerai {name} predictions to {filepath}")
-            napi.download_dataset(filename, dest_path=filepath)
+            napi.download_dataset("/".join(["v3", filename]), dest_path=filepath)
 
             df = pd.read_parquet(filepath)
             remove(filepath)
@@ -916,7 +916,7 @@ def fetch_numerai_feature_metadata(
 
         logger.info(f"Downloading Numerai feature metadata to {filepath}")
         napi = NumerAPI()
-        napi.download_dataset(filename, dest_path=filepath)
+        napi.download_dataset("/".join(["v3", filename]), dest_path=filepath)
 
         feature_metadata_dict = _read_json_file(filepath)
         if not keep:
