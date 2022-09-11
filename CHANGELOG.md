@@ -1,3 +1,9 @@
+## 1.6.2 (2022-09-11)
+
+### Fix
+
+- use version prefix when downloading dataset
+
 ## 1.6.1 (2022-06-19)
 
 ### Fix
