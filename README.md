@@ -5,6 +5,10 @@
 [![Documentation Status](https://img.shields.io/readthedocs/nntm)](https://nntm.readthedocs.io/en/latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+> **Warning**
+>
+> nntm can only be used with the **v3** dataset for now
+
 # nntm
 A set of modules for the [Numerai tournament](https://numer.ai/tournament).
 
